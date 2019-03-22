@@ -24,6 +24,13 @@ class PlayGame extends Phaser.Scene {
     this.player = this.physics.add.sprite(50, 100, "player", 1);
     this.physics.add.collider(this.player, blocksLayer);
 
+    this.marker = this.add
+      .graphics()
+      .lineStyle(3, 0xffffff, 1)
+      .strokeRect(0, 0, this.map.tileWidth, this.map.tileHeight);
+
+    //this.input.on("pointerup", () => {});
+
     this.anims.create({
       key: "left",
       frames: this.anims.generateFrameNumbers("player", {
@@ -58,6 +65,8 @@ class PlayGame extends Phaser.Scene {
     });
 
     this.cursors = this.input.keyboard.createCursorKeys();
+
+    console.log(blocksLayer.getTileAt(2, 1));
   }
 
   update() {
@@ -88,5 +97,11 @@ class PlayGame extends Phaser.Scene {
     } else {
       this.player.anims.stop();
     }
+
+    // Rounds down to nearest tile
+    var pointerTileX = this.map.worldToTileX(this.input.mousePointer.x);
+    var pointerTileY = this.map.worldToTileY(this.input.mousePointer.y);
+    this.marker.x = this.map.tileToWorldX(pointerTileX);
+    this.marker.y = this.map.tileToWorldY(pointerTileY);
   }
 }

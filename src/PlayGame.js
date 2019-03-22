@@ -17,8 +17,8 @@ class PlayGame extends Phaser.Scene {
       key: "map"
     });
     const tileSet = this.map.addTilesetImage("tiles", "tilesImage");
-    const groundLayer = this.map.createStaticLayer("background", tileSet);
-    const blocksLayer = this.map.createStaticLayer("collitions", tileSet);
+    const groundLayer = this.map.createDynamicLayer("background", tileSet);
+    const blocksLayer = this.map.createDynamicLayer("collitions", tileSet);
     blocksLayer.setCollisionByExclusion([-1]);
 
     this.player = this.physics.add.sprite(50, 100, "player", 1);
@@ -29,7 +29,21 @@ class PlayGame extends Phaser.Scene {
       .lineStyle(3, 0xffffff, 1)
       .strokeRect(0, 0, this.map.tileWidth, this.map.tileHeight);
 
-    //this.input.on("pointerup", () => {});
+    this.input.on("pointerdown", pointer => {
+      const pointerTileX = this.map.worldToTileX(pointer.x);
+      const pointerTileY = this.map.worldToTileY(pointer.y);
+      const currentTile = this.map.getTileAt(
+        pointerTileX,
+        pointerTileY,
+        true,
+        "collitions"
+      );
+      if (currentTile.index === -1) {
+        this.map.putTileAt(4, pointerTileX, pointerTileY, false, "collitions");
+      } else {
+        this.map.putTileAt(-1, pointerTileX, pointerTileY, false, "collitions");
+      }
+    });
 
     this.anims.create({
       key: "left",
@@ -99,8 +113,8 @@ class PlayGame extends Phaser.Scene {
     }
 
     // Rounds down to nearest tile
-    var pointerTileX = this.map.worldToTileX(this.input.mousePointer.x);
-    var pointerTileY = this.map.worldToTileY(this.input.mousePointer.y);
+    const pointerTileX = this.map.worldToTileX(this.input.mousePointer.x);
+    const pointerTileY = this.map.worldToTileY(this.input.mousePointer.y);
     this.marker.x = this.map.tileToWorldX(pointerTileX);
     this.marker.y = this.map.tileToWorldY(pointerTileY);
   }

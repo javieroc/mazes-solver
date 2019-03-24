@@ -13,6 +13,7 @@ class PlayGame extends Phaser.Scene {
   }
 
   create() {
+    // Map stuffs
     this.map = this.make.tilemap({
       key: "map"
     });
@@ -20,14 +21,6 @@ class PlayGame extends Phaser.Scene {
     const groundLayer = this.map.createDynamicLayer("background", tileSet);
     const blocksLayer = this.map.createDynamicLayer("collitions", tileSet);
     blocksLayer.setCollisionByExclusion([-1]);
-
-    this.player = this.physics.add.sprite(50, 100, "player", 1);
-    this.physics.add.collider(this.player, blocksLayer);
-
-    this.marker = this.add
-      .graphics()
-      .lineStyle(3, 0xffffff, 1)
-      .strokeRect(0, 0, this.map.tileWidth, this.map.tileHeight);
 
     this.input.on("pointerdown", pointer => {
       const pointerTileX = this.map.worldToTileX(pointer.x);
@@ -44,6 +37,23 @@ class PlayGame extends Phaser.Scene {
         this.map.putTileAt(-1, pointerTileX, pointerTileY, false, "collitions");
       }
     });
+
+    // Destiny
+    this.destiny = this.add
+      .graphics()
+      .fillStyle(0xff0dff, 1.0)
+      .fillRect(
+        this.map.tileWidth *
+          Math.floor(Math.round(this.scale.width / this.map.tileWidth) / 2),
+        this.map.tileHeight *
+          Math.floor(Math.round(this.scale.height / this.map.tileHeight) / 2),
+        this.map.tileWidth,
+        this.map.tileHeight
+      );
+
+    // Player stuffs
+    this.player = this.physics.add.sprite(50, 50, "player", 1);
+    this.physics.add.collider(this.player, blocksLayer);
 
     this.anims.create({
       key: "left",
@@ -78,41 +88,36 @@ class PlayGame extends Phaser.Scene {
       repeat: -1
     });
 
-    this.cursors = this.input.keyboard.createCursorKeys();
+    // Cursor stuffs
+    this.marker = this.add
+      .graphics()
+      .lineStyle(3, 0xffffff, 1)
+      .strokeRect(0, 0, this.map.tileWidth, this.map.tileHeight);
 
-    console.log(blocksLayer.getTileAt(2, 1));
+    this.cursors = this.input.keyboard.createCursorKeys();
   }
 
   update() {
     this.player.body.setVelocity(0);
 
-    // Horizontal movement
+    // Move Player
     if (this.cursors.left.isDown) {
       this.player.body.setVelocityX(-80);
-    } else if (this.cursors.right.isDown) {
-      this.player.body.setVelocityX(80);
-    }
-
-    // Vertical movement
-    if (this.cursors.up.isDown) {
-      this.player.body.setVelocityY(-80);
-    } else if (this.cursors.down.isDown) {
-      this.player.body.setVelocityY(80);
-    }
-
-    if (this.cursors.left.isDown) {
       this.player.anims.play("left", true);
     } else if (this.cursors.right.isDown) {
+      this.player.body.setVelocityX(80);
       this.player.anims.play("right", true);
     } else if (this.cursors.up.isDown) {
+      this.player.body.setVelocityY(-80);
       this.player.anims.play("up", true);
     } else if (this.cursors.down.isDown) {
+      this.player.body.setVelocityY(80);
       this.player.anims.play("down", true);
     } else {
       this.player.anims.stop();
     }
 
-    // Rounds down to nearest tile
+    // Update marker position
     const pointerTileX = this.map.worldToTileX(this.input.mousePointer.x);
     const pointerTileY = this.map.worldToTileY(this.input.mousePointer.y);
     this.marker.x = this.map.tileToWorldX(pointerTileX);
